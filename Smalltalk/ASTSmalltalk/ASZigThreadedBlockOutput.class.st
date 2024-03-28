@@ -20,6 +20,11 @@ ASZigThreadedBlockOutput >> codeGeneratorClass [
 ]
 
 { #category : 'compiling' }
+ASZigThreadedBlockOutput >> enclosingScope [
+	^parentCodeGenerator
+]
+
+{ #category : 'compiling' }
 ASZigThreadedBlockOutput >> methodGenerator [
 
 	^ methodGenerator
@@ -30,6 +35,29 @@ ASZigThreadedBlockOutput >> methodGenerator: anOutput block: anInteger [
 
 	methodGenerator := anOutput.
 	block := anInteger
+]
+
+{ #category : 'visiting' }
+ASZigThreadedBlockOutput >> visitPopLocalData: aASCIndirectVariable [
+	"&e.popLocalData, i1 + (i2 << s1)"
+
+	self
+		putEmbedded: #popLocalData;
+		print:
+			(aASCIndirectVariable offsets collectWithIndex: [ :offset :index |
+					 offset withIndex: index ]);
+		comma
+]
+
+{ #category : 'visiting' }
+ASZigThreadedBlockOutput >> visitPushLocalData: aASCIndirectVariable [
+	"&e.pushLocalData, i1 + (i2 << s1)"
+	self
+		putEmbedded: #pushLocalData;
+		print:
+			(aASCIndirectVariable offsets collectWithIndex: [ :offset :index |
+					 offset withIndex: index ]);
+		comma
 ]
 
 { #category : 'visiting' }

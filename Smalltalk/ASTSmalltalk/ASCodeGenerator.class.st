@@ -24,7 +24,8 @@ Class {
 		'output',
 		'tailCallOptimize',
 		'blockClosures',
-		'parentCodeGenerator'
+		'parentCodeGenerator',
+		'enclosingScope'
 	],
 	#category : 'ASTSmalltalk-CodeGen',
 	#package : 'ASTSmalltalk',
@@ -88,6 +89,12 @@ ASCodeGenerator >> enableInlining [
 	inline := true
 ]
 
+{ #category : 'accessing' }
+ASCodeGenerator >> enclosingScope: aScope [
+	enclosingScope := aScope.
+	code nonlocalNameLookupObject: aScope
+]
+
 { #category : 'evaluating' }
 ASCodeGenerator >> eval: aString params: aCollection [
 
@@ -102,8 +109,10 @@ ASCodeGenerator >> finalAnalysis [
 
 { #category : 'accessing' }
 ASCodeGenerator >> find: aSymbol [
+	| indirect |
 
-	^ code find: aSymbol
+	indirect := ASCIndirectVariable new.
+	^ indirect variable: (code find: aSymbol)
 ]
 
 { #category : 'API' }
@@ -141,7 +150,6 @@ ASCodeGenerator >> initialize [
 
 	super initialize.
 	code := ASCMethodBlock new.
-	code nonlocalNameLookupObject: self.
 	basicBlocks := OrderedCollection new.
 	basicBlocks add: code.
 	blockClosures := OrderedCollection new.
@@ -225,8 +233,8 @@ ASCodeGenerator >> output: anASFileContext [
 
 { #category : 'accessing' }
 ASCodeGenerator >> parentCodeGenerator: aCodeGenerator [
-aCodeGenerator ifNotNil: [ 	parentCodeGenerator := aCodeGenerator.
-	code nonlocalNameLookupObject: aCodeGenerator]
+
+		parentCodeGenerator := aCodeGenerator
 ]
 
 { #category : 'API' }

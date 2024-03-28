@@ -11,6 +11,65 @@ Class {
 }
 
 { #category : 'compiling' }
+ASZigMethodOutput >> blockClass [
+	^ self class blockClass
+]
+
+{ #category : 'accessing' }
+ASZigMethodOutput >> blockNumber [
+	^ currentBasicBlock := currentBasicBlock + 1.
+
+]
+
+{ #category : 'code generation' }
+ASZigMethodOutput >> codeGenerator [
+
+	^ codeGenerator ifNil: [
+		  codeGenerator := self codeGeneratorClass new
+			                   parentCodeGenerator: parentCodeGenerator;
+			                   output: self;
+			                   targetClass: forClass;
+			                   enclosingScope: (self enclosingScope) ]
+]
+
+{ #category : 'code generation' }
+ASZigMethodOutput >> codeGeneratorClass [ ^ ASCodeGenerator 
+]
+
+{ #category : 'compiling' }
+ASZigMethodOutput >> compileBlock: anASCBlock [
+	self assert: anASCBlock block ~= ourObject.
+	(self blockClass new testing: testing)
+		context: context;
+		parentCodeGenerator: codeGenerator;
+		methodGenerator: self methodGenerator block: self blockNumber;
+		generateCode: anASCBlock block for: forClass
+]
+
+{ #category : 'compiling' }
+ASZigMethodOutput >> enclosingScope [
+
+	^ ASEnclosingScope new
+]
+
+{ #category : 'code generation' }
+ASZigMethodOutput >> generateCode [
+
+	alreadyGenerated ifTrue: [ ^ self ].
+	alreadyGenerated := true.
+	self codeGenerator generate: ourObject.
+	self outputToStream
+]
+
+{ #category : 'initialization' }
+ASZigMethodOutput >> initialize [
+
+	super initialize.
+	maxDepth := 0.
+	currentBasicBlock := 0
+]
+
+{ #category : 'compiling' }
 ASZigMethodOutput >> methodGenerator [ ^ self
 ]
 
